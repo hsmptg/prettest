@@ -5,5 +5,50 @@
 {% block page_content %}
 <div class="page-header">
     <h1>{{user}} is logged!!!</h1>
+
+    <div class = "col-md-5" id = "log_space">
+        <div class="panel panel-default">
+            <div class="panel-heading clearfix">
+                <b>Log</b>
+                <div class="pull-right">
+                    <button id="reset" class="btn btn-xs btn-primary">Reset</button>
+                </div>
+            </div>
+            <div class="panel-body">
+                <textarea id="log" class="form-control" rows="15"></textarea>
+            </div>
+        </div>
+    </div>
+
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
+
+	<script type="text/javascript" charset="utf-8">
+		namespace = '/test'; // change to an empty string to use the global namespace
+		var url = 'http://' + document.domain + ':' + location.port + namespace;
+		var socket = io.connect(url);
+
+		var obj=document.getElementById('log');
+		function log(msg) {
+//			$('#log').append('\n' +msg);
+			obj.scrollTop=obj.scrollHeight;
+		}
+
+        $(document).ready(function(){
+			$('#log').append(url);
+
+            $('#reset').on('click', function (e) {
+                socket.emit('reset');
+            });
+
+			socket.on('cnt', function(msg) {
+				log(msg.value);
+			});
+		});
+	</script>
 {% endblock %}
