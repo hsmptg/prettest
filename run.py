@@ -7,6 +7,20 @@ from threading import Thread
 import eventlet
 eventlet.monkey_patch()
 
+import signal
+import sys
+
+exitFlag = False
+
+def signal_handler(signal, frame):
+    global exitFlag
+
+    exitFlag = True
+    print(signal)
+    print('You pressed Ctrl+C!')
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 socketio = SocketIO(app, async_mode='eventlet')
@@ -15,23 +29,25 @@ counter = 0
 
 
 def background_thread():
-    global counter
+    global counter, exitFlag
 
-    while True:
-        print('counter = {}'.format(counter))
+    while not exitFlag:
         counter += 1
+        print('counter = {}'.format(counter))
         socketio.emit('cnt', {'value': counter}, namespace='/test')
         time.sleep(5)
+
+    print('exit thread')
 
 
 @manager.command
 def run():
     thread = Thread(target=background_thread)
-    thread.daemon = True
+    #thread.daemon = True
     thread.start()
 
     # nao da para especificar o host, port da linha de comando pelo script?
-    socketio.run(app, host='127.0.0.1', port=5000, use_reloader=False)
+    socketio.run(app, host='0.0.0.0', port=5000, use_reloader=False)
 
 
 @socketio.on('reset', namespace='/test')
