@@ -1,9 +1,11 @@
 from flask import Flask
 from config import config
 from flask.ext.bootstrap import Bootstrap
+from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
 bootstrap = Bootstrap()
+db = SQLAlchemy()
 login_manager = LoginManager()
 
 
@@ -14,6 +16,7 @@ def create_app(config_name):
     config[config_name].init_app(app)
 
     bootstrap.init_app(app)
+    db.init_app(app)
     login_manager.init_app(app)
 
     from .main import main as main_blueprint

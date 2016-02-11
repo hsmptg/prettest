@@ -11,6 +11,8 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:regmed@127.0.0.1/test1'
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 
 
 class TestingConfig(Config):
