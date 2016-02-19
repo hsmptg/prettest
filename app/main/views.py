@@ -28,6 +28,11 @@ def index():
     return render_template('index.html', msg=MESSAGES['default'])
 
 
+@main.route('/Test')
+def Test():
+    return render_template('new.html')
+
+
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()

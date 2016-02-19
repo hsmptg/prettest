@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <title>Bootstrap</title>
+</head>
+<body>
+<br>
+<br>
+<div class="col-xs-6 col-xs-offset-3 well">
+    <div class="row">
+        <div class="col-xs-9">
+            <h1 id="titulo">Acesso</h1>
+            <p>Introduza os seus dados de acesso<br>
+                ou use o seu cartão RFID</p><br>
+        </div>
+        <div class="col-xs-3">
+            <br><span class="fa fa-key fa-5x"></span>
+        </div>
+    </div>
+    <form role="form">
+        <div class="form-group">
+            <div class="input-group">
+                <span class="input-group-addon"><b>Utilizador</b></span>
+                <input class="form-control col-xs-6" type="text" id="username" placeholder="Utilizador">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <span class="input-group-addon">Palavra-passe</span>
+                <input class="form-control col-xs-6" type="password" id="password" placeholder="Palavra-passe">
+            </div>
+        </div>
+<!--
+        <div class="form-group">
+            <label for="pwd">Password:</label>
+            <input type="password" class="form-control" id="pwd" placeholder="Password">
+        </div>
+-->
+    </form>
+</div>
+<br>
+<br>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-2 col-xs-offset-2">
+            <a href="#" class="btn btn-block btn-primary">
+                <span class="fa fa-cogs fa-2x"></span><br>Produção</a>
+        </div>
+        <div class="col-xs-2">
+            <a href="#" class="btn btn-block btn-primary">
+                <span class="fa fa-medkit fa-2x"></span><br>Manutenção</a>
+        </div>
+        <div class="col-xs-2">
+            <a href="#" class="btn btn-block btn-primary">
+                <span class="fa fa-sliders fa-2x"></span><br>Preparação</a>
+        </div>
+        <div class="col-xs-2">
+            <a href="#" class="btn btn-block btn-warning">
+                <span class="fa fa-database fa-2x"></span><br>Dados</a>
+        </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</body>
+</html>
