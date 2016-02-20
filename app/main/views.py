@@ -1,26 +1,21 @@
 from app import login_manager
 from app.main import main
 from app.main.forms import LoginForm
-from app.models import MESSAGES, users, User, Session
-from flask import render_template, redirect, url_for, session, request
+from app.models import User, Task
+from flask import render_template, redirect, url_for, session, request, flash
 from flask.ext.login import login_user, logout_user, login_required #, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from .. import db
 
 @login_manager.user_loader
-def user_loader(email):
-    print('user_loader')
-    if email not in users:
-        return
-
-    user = User()
-    user.id = email
-    return user
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
-    return 'Unauthorized access!!!'
+    return 'Acesso n&atilde;o autorizado!!!'
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -28,16 +23,22 @@ def index():
     form = LoginForm()
     if form.validate_on_submit():
         username = form.user.data
-        if form.pwd.data == users[username]['pw']:
-            user = User()
-            user.id = username
+        user = User.query.filter_by(username=username).first()
+
+#        new_user = User(username="admin", password_hash="xxx")
+#        new_user.password_hash = generate_password_hash("admin")
+#        db.session.add(new_user)
+#        db.session.commit()
+
+        if user is not None and check_password_hash(user.password_hash, form.pwd.data):
             login_user(user)
 
-            # creates new row at sessions table
-            new_session = Session(username=username, begin=datetime.now())
-            db.session.add(new_session)
+            # creates new row at Task table
+            new_task = Task(username=username, begin=datetime.now(),
+                            task=form.task.data)
+            db.session.add(new_task)
             db.session.commit()
-            session['session_id'] = new_session.id
+            session['task_id'] = new_task.id
 
             if form.task.data == "production":
                 return redirect(url_for('main.production'))
@@ -47,6 +48,7 @@ def index():
                 return redirect(url_for('main.setup'))
             elif form.task.data == "data":
                 return redirect(url_for('main.data'))
+        flash('Invalid username or password.')
 
     return render_template('index.html', form=form,
                            rpi=(request.remote_addr == "127.0.0.1"))
@@ -81,10 +83,10 @@ def logout():
     logout_user()
 
     # updates de end column
-    current_session = Session.query.filter_by(id=session['session_id']).first()
-    assert isinstance(current_session, Session)
-    current_session.end = datetime.now()
-    db.session.add(current_session)
+    current_task = Task.query.filter_by(id=session['task_id']).first()
+    assert isinstance(current_task, Task)
+    current_task.end = datetime.now()
+    db.session.add(current_task)
     db.session.commit()
 
     return redirect(url_for('main.index'))

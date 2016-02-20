@@ -1,20 +1,22 @@
 from flask.ext.login import UserMixin
 from . import db
 
-MESSAGES = {
-    'default': 'Hello to the World of Flask!',
-}
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key = True)
+    username = db.Column(db.String(64), unique=True, index=True)
+    password_hash = db.Column(db.String(128))
+#    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
-users = {'hsmptg': {'pw': 'prettl'},
-         'admin': {'pw': 'admin'}}
+    def __repr__(self):
+        pass
 
-class User(UserMixin):
-    pass
 
-class Session(db.Model):
+class Task(db.Model):
     __tablename__ = 'sessions'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64))
+    task = db.Column(db.String(64))
     begin = db.Column(db.DateTime)
     end = db.Column(db.DateTime)
 

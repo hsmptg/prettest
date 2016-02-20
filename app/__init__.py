@@ -2,7 +2,7 @@ from flask import Flask
 from config import config
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask.ext.login import LoginManager
 
 bootstrap = Bootstrap()
 db = SQLAlchemy()

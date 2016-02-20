@@ -16,7 +16,6 @@ def signal_handler(signal, frame):
     global exitFlag
 
     exitFlag = True
-    print(signal)
     print('You pressed Ctrl+C!')
     sys.exit(0)
 
