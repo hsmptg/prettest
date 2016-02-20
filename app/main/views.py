@@ -2,8 +2,8 @@ from app import login_manager
 from app.main import main
 from app.main.forms import LoginForm
 from app.models import MESSAGES, users, User, Session
-from flask import render_template, redirect, url_for, session
-from flask.ext.login import login_user, logout_user, login_required, current_user
+from flask import render_template, redirect, url_for, session, request
+from flask.ext.login import login_user, logout_user, login_required #, current_user
 from datetime import datetime
 from .. import db
 
@@ -23,18 +23,8 @@ def unauthorized_handler():
     return 'Unauthorized access!!!'
 
 
-@main.route('/')
+@main.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html', msg=MESSAGES['default'])
-
-
-@main.route('/Test')
-def Test():
-    return render_template('new.html')
-
-
-@main.route('/login', methods=['GET', 'POST'])
-def login():
     form = LoginForm()
     if form.validate_on_submit():
         username = form.user.data
@@ -49,8 +39,41 @@ def login():
             db.session.commit()
             session['session_id'] = new_session.id
 
-            return redirect(url_for('main.private'))
-    return render_template('login.html', form=form)
+            if form.task.data == "production":
+                return redirect(url_for('main.production'))
+            elif form.task.data == "maintenance":
+                return redirect(url_for('main.maintenance'))
+            elif form.task.data == "setup":
+                return redirect(url_for('main.setup'))
+            elif form.task.data == "data":
+                return redirect(url_for('main.data'))
+
+    return render_template('index.html', form=form,
+                           rpi=(request.remote_addr == "127.0.0.1"))
+
+
+@main.route('/production')
+@login_required
+def production():
+    return render_template('production.html')
+
+
+@main.route('/maintenance')
+@login_required
+def maintenance():
+    return render_template('maintenance.html')
+
+
+@main.route('/setup')
+@login_required
+def setup():
+    return render_template('setup.html')
+
+
+@main.route('/data')
+@login_required
+def data():
+    return render_template('data.html')
 
 
 @main.route('/logout')
@@ -65,20 +88,3 @@ def logout():
     db.session.commit()
 
     return redirect(url_for('main.index'))
-
-
-@main.route('/private')
-@login_required
-def private():
-    return render_template('private.html', user=current_user.id)
-
-
-@main.route('/show/<key>')
-def get_message(key):
-    return MESSAGES.get(key) or "%s not found!" % key
-
-
-@main.route('/add/<key>/<message>')
-def add_or_update_message(key, message):
-    MESSAGES[key] = message
-    return "%s Added/Updated" % key

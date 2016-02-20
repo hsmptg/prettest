@@ -44,7 +44,7 @@ def background_thread():
 def run():
     thread = Thread(target=background_thread)
     #thread.daemon = True
-    thread.start()
+    #thread.start()
 
     # nao da para especificar o host, port da linha de comando pelo script?
     socketio.run(app, host='0.0.0.0', port=5000, use_reloader=False)
