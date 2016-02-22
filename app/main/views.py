@@ -1,3 +1,4 @@
+# coding=utf-8
 from app import login_manager
 from app.main import main
 from app.main.forms import LoginForm
@@ -32,7 +33,7 @@ def index():
 #        db.session.commit()
 
         if user is None:
-            flash("O utilizador não existe!")
+            flash(u"O utilizador não existe!")
         elif not check_password_hash(user.password_hash, form.pwd.data):
             flash("A palavra-passe está incorreta!")
         else:
