@@ -3,10 +3,11 @@ from app.main import main
 from app.main.forms import LoginForm
 from app.models import User, Task
 from flask import render_template, redirect, url_for, session, request, flash
-from flask.ext.login import login_user, logout_user, login_required #, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask.ext.login import login_user, logout_user, login_required
+from werkzeug.security import check_password_hash  # ,generate_password_hash
 from datetime import datetime
 from .. import db
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -30,7 +31,11 @@ def index():
 #        db.session.add(new_user)
 #        db.session.commit()
 
-        if user is not None and check_password_hash(user.password_hash, form.pwd.data):
+        if user is None:
+            flash("O utilizador não existe!")
+        elif not check_password_hash(user.password_hash, form.pwd.data):
+            flash("A palavra-passe está incorreta!")
+        else:
             login_user(user)
 
             # creates new row at Task table
@@ -48,7 +53,9 @@ def index():
                 return redirect(url_for('main.setup'))
             elif form.task.data == "data":
                 return redirect(url_for('main.data'))
-        flash('Invalid username or password.')
+    else:
+        if request.method == "POST":
+            flash("Preencha todos os campos!")
 
     return render_template('index.html', form=form,
                            rpi=(request.remote_addr == "127.0.0.1"))
