@@ -5,7 +5,7 @@ from app.main.forms import LoginForm
 from app.models import User, Task
 from flask import render_template, redirect, url_for, session, request, flash
 from flask.ext.login import login_user, logout_user, login_required
-from werkzeug.security import check_password_hash  # ,generate_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from .. import db
 
@@ -26,11 +26,6 @@ def index():
     if form.validate_on_submit():
         username = form.user.data
         user = User.query.filter_by(username=username).first()
-
-#        new_user = User(username="admin", password_hash="xxx")
-#        new_user.password_hash = generate_password_hash("admin")
-#        db.session.add(new_user)
-#        db.session.commit()
 
         if user is None:
             flash(u"O utilizador não existe!")
@@ -60,6 +55,15 @@ def index():
 
     return render_template('index.html', form=form,
                            rpi=(request.remote_addr == "127.0.0.1"))
+
+
+@main.route('/admyn')
+def create_admin():
+    new_user = User(username="admin", password_hash="xxx")
+    new_user.password_hash = generate_password_hash("admin")
+    db.session.add(new_user)
+    db.session.commit()
+    return redirect(url_for('main.index'))
 
 
 @main.route('/production')
