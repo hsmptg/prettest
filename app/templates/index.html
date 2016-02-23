@@ -120,8 +120,45 @@
 
 <script type="text/javascript" charset="utf-8">
     $(function(){
-        $('#user').keyboard();
-        $('#pwd').keyboard();
+        // modify enter key behaviour
+        // https://github.com/Mottie/Keyboard/wiki/Actions
+        $.extend( $.keyboard.keyaction, {
+              enter : function(base, el, e) {
+                base.close(true); // same as base.accept();
+                return false;     // return false prevents further processing
+              }
+        });
+        // bootstrap theme
+        // http://jsfiddle.net/Mottie/MK947/1837/
+        $('#user').keyboard({
+            layout: 'qwerty',
+            css: {
+                // input & preview
+                input: 'form-control input-sm',
+                // keyboard container
+                container: 'center-block dropdown-menu', // jumbotron
+                // default state
+                buttonDefault: 'btn btn-default',
+                // hovered button
+                buttonHover: 'btn-primary',
+                // Action keys (e.g. Accept, Cancel, Tab, etc);
+                // this replaces "actionClass" option
+                buttonAction: 'active',
+                // used when disabling the decimal button {dec}
+                // when a decimal exists in the input area
+                buttonDisabled: 'disabled'
+            }
+        });
+        $('#pwd').keyboard({
+            css: {
+                input: 'form-control input-sm',
+                container: 'center-block dropdown-menu', // jumbotron
+                buttonDefault: 'btn btn-default',
+                buttonHover: 'btn-primary',
+                buttonAction: 'active',
+                buttonDisabled: 'disabled'
+            }
+        });
     });
 </script>
 {% endif %}
