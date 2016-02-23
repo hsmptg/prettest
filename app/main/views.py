@@ -1,4 +1,3 @@
-# coding=utf-8
 from app import login_manager
 from app.main import main
 from app.main.forms import LoginForm
@@ -28,9 +27,9 @@ def index():
         user = User.query.filter_by(username=username).first()
 
         if user is None:
-            flash(u"O utilizador não existe!")
+            flash("O utilizador nao existe!")
         elif not check_password_hash(user.password_hash, form.pwd.data):
-            flash("A palavra-passe está incorreta!")
+            flash("A palavra-passe esta incorreta!")
         else:
             login_user(user)
 
