@@ -1,3 +1,5 @@
+# coding=utf-8
+
 from app import login_manager
 from app.main import main
 from app.main.forms import LoginForm
@@ -16,7 +18,7 @@ def load_user(user_id):
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
-    return 'Acesso n&atilde;o autorizado!!!'
+    return unicode("Acesso não autorizado!!!", "utf8")
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -27,9 +29,9 @@ def index():
         user = User.query.filter_by(username=username).first()
 
         if user is None:
-            flash("O utilizador nao existe!")
+            flash(unicode("O utilizador não existe!", "utf8"))
         elif not check_password_hash(user.password_hash, form.pwd.data):
-            flash("A palavra-passe esta incorreta!")
+            flash(unicode("A palavra-passe está incorreta!", "utf8"))
         else:
             login_user(user)
 

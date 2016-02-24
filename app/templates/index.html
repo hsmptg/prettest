@@ -6,22 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-    <title>Bootstrap</title>
+    <title>PRETTL</title>
 </head>
+<style>
+    .input-group-addon {
+        min-width:120px;
+        text-align:right;
+    }
+</style>
 <body>
 <!-- modal warning -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+<div class="modal" id="myModal" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Aten&ccedil;&atilde;o</h4>
+        <h3 style="color:#E60000" class="modal-title"><span class="fa fa-info-circle fa-2x"></span> Aten&ccedil;&atilde;o</h3>
       </div>
       <div class="modal-body">
         <p id="error-msg"></p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+        <button type="button" class="btn btn-primary btn-block" data-dismiss="modal">OK</button>
       </div>
     </div>
   </div>
@@ -46,13 +52,13 @@
         <input type="submit" style="display:none">
         <div class="form-group">
             <div class="input-group">
-                <span class="input-group-addon"><b>{{ form.user.label.text }}</b></span>
+                <span class="input-group-addon">{{ form.user.label.text }}</span>
                 {{ form.user(size=20, **{'class':'form-control col-xs-6'}) }}
             </div>
         </div>
         <div class="form-group">
             <div class="input-group">
-                <span class="input-group-addon"><b>{{ form.pwd.label.text }}</b></span>
+                <span class="input-group-addon">{{ form.pwd.label.text }}</span>
                 {{ form.pwd(size=20, **{'class':'form-control col-xs-6'}) }}
             </div>
         </div>
@@ -64,15 +70,15 @@
     <div class="row">
         <div class="col-xs-2 col-xs-offset-2">
             <button type="submit" id="production" class="btn btn-block btn-primary">
-                <span class="fa fa-cogs fa-2x"></span><br>Produ&ccedil;&atilde;o</button>
+                <span class="fa fa-cogs fa-2x"></span><br>Produção</button>
         </div>
         <div class="col-xs-2">
             <button type="submit" id="maintenance" class="btn btn-block btn-primary">
-                <span class="fa fa-medkit fa-2x"></span><br>Manuten&ccedil;&atilde;o</button>
+                <span class="fa fa-medkit fa-2x"></span><br>Manutenção</button>
         </div>
         <div class="col-xs-2">
             <button type="submit" id="setup" class="btn btn-block btn-primary">
-                <span class="fa fa-sliders fa-2x"></span><br>Prepara&ccedil;&atilde;o</button>
+                <span class="fa fa-sliders fa-2x"></span><br>Preparação</button>
         </div>
         <div class="col-xs-2">
             <button type="submit" id="data" class="btn btn-block btn-warning">
@@ -80,8 +86,10 @@
         </div>
     </div>
 </div>
+<br>
+<br>
 <div>
-    <br><p class="text-center">Prettl &copy; 2016</p>
+    <p class="text-center"><img src="{{ url_for('static', filename='prettl.png') }}" height="15" width="100"> &copy; 2016</p>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script type="text/javascript">
