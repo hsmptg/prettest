@@ -27,6 +27,17 @@ manager = Manager(app)
 counter = 0
 
 
+@socketio.on('connect', namespace='/rfid')
+def test_connect():
+    print("Conected!!!")
+    socketio.emit('cnt', {'value': 33}, namespace='/rfid')
+
+
+@socketio.on('my event', namespace='/rfid')
+def handle_my_custom_event(json):
+    print('received json: ' + str(json))
+
+
 def background_thread():
     global counter, exitFlag
 
@@ -46,7 +57,7 @@ def run():
     #thread.start()
 
     # nao da para especificar o host, port da linha de comando pelo script?
-    socketio.run(app, host='0.0.0.0', port=5000, use_reloader=False)
+    socketio.run(app, host='0.0.0.0', port=5000, use_reloader=False, debug=True)
 
 
 @socketio.on('reset', namespace='/test')

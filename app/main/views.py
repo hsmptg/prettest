@@ -37,19 +37,14 @@ def rfid_proc():
     print('exit thread')
 
 
-thread_rfid = Thread()
+thread_rfid = None
 counter = 0
 exitRFID = False
 
 
-@socketio.on('my event')
-def handle_my_custom_event(json):
-    print('received json: ' + str(json))
-
-
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    global thread_rfid, counter, exitFlag
+    global thread_rfid, counter, exitRFID
 
     form = LoginForm()
     if request.method == "POST":
@@ -89,7 +84,7 @@ def index():
             counter = 0
             exitRFID = False
             thread_rfid = Thread(target=rfid_proc)
-            #thread_rfid.daemon = True
+            thread_rfid.daemon = True
             thread_rfid.start()
     return render_template('index.html', form=form,
                            rpi=(request.remote_addr == "127.0.0.1"))

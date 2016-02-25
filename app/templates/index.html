@@ -101,16 +101,11 @@
         namespace = '/rfid'; // change to an empty string to use the global namespace
         var url = 'http://' + document.domain + ':' + location.port + namespace;
         var socket = io.connect(url);
-        $( "#user" ).val(url);
-
-        socket.on('connect', function() {
-            socket.emit('my event', {data: 'I\'m connected!'});
-        });
 
         socket.on('cnt', function(msg) {
             var cnt = msg.value;
-            alert("hello")
-            $( "#user" ).val(url + "xx");
+            socket.emit('my event', {data: 'I\'m connected!'});
+            $( "#user" ).val(cnt);
         });
 {% endif %}
 
