@@ -41,7 +41,7 @@ def background_thread():
 
 @manager.command
 def run():
-    thread = Thread(target=background_thread)
+    #thread = Thread(target=background_thread)
     #thread.daemon = True
     #thread.start()
 

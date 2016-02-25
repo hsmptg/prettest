@@ -10,6 +10,10 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from .. import db
 
+from threading import Thread
+from run import socketio
+import time
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -21,39 +25,72 @@ def unauthorized_handler():
     return unicode("Acesso não autorizado!!!", "utf8")
 
 
+def rfid_proc():
+    global counter, exitRFID
+
+    while not exitRFID:
+        counter += 1
+        print('counter = {}'.format(counter))
+        socketio.emit('cnt', {'value': counter}, namespace='/rfid')
+        time.sleep(1)
+
+    print('exit thread')
+
+
+thread_rfid = Thread()
+counter = 0
+exitRFID = False
+
+
+@socketio.on('my event')
+def handle_my_custom_event(json):
+    print('received json: ' + str(json))
+
+
 @main.route('/', methods=['GET', 'POST'])
 def index():
+    global thread_rfid, counter, exitFlag
+
     form = LoginForm()
-    if form.validate_on_submit():
-        username = form.user.data
-        user = User.query.filter_by(username=username).first()
+    if request.method == "POST":
+        if form.validate_on_submit():
+            username = form.user.data
+            user = User.query.filter_by(username=username).first()
 
-        if user is None:
-            flash(unicode("O utilizador não existe!", "utf8"))
-        elif not check_password_hash(user.password_hash, form.pwd.data):
-            flash(unicode("A palavra-passe está incorreta!", "utf8"))
+            if user is None:
+                flash(unicode("O utilizador não existe!", "utf8"))
+            elif not check_password_hash(user.password_hash, form.pwd.data):
+                flash(unicode("A palavra-passe está incorreta!", "utf8"))
+            else:
+                login_user(user)
+
+                # creates new row at Task table
+                new_task = Task(username=username, begin=datetime.now(),
+                                task=form.task.data)
+                db.session.add(new_task)
+                db.session.commit()
+                session['task_id'] = new_task.id
+
+                if request.remote_addr == "127.0.0.1":
+                    exitRFID = True
+
+                if form.task.data == "production":
+                    return redirect(url_for('main.production'))
+                elif form.task.data == "maintenance":
+                    return redirect(url_for('main.maintenance'))
+                elif form.task.data == "setup":
+                    return redirect(url_for('main.setup'))
+                elif form.task.data == "data":
+                    return redirect(url_for('main.data'))
         else:
-            login_user(user)
-
-            # creates new row at Task table
-            new_task = Task(username=username, begin=datetime.now(),
-                            task=form.task.data)
-            db.session.add(new_task)
-            db.session.commit()
-            session['task_id'] = new_task.id
-
-            if form.task.data == "production":
-                return redirect(url_for('main.production'))
-            elif form.task.data == "maintenance":
-                return redirect(url_for('main.maintenance'))
-            elif form.task.data == "setup":
-                return redirect(url_for('main.setup'))
-            elif form.task.data == "data":
-                return redirect(url_for('main.data'))
-    else:
-        if request.method == "POST":
             flash("Preencha todos os campos!")
-
+    else:
+        if request.remote_addr == "127.0.0.1":
+            counter = 0
+            exitRFID = False
+            thread_rfid = Thread(target=rfid_proc)
+            #thread_rfid.daemon = True
+            thread_rfid.start()
     return render_template('index.html', form=form,
                            rpi=(request.remote_addr == "127.0.0.1"))
 
