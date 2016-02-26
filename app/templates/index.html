@@ -49,6 +49,7 @@
     <form method="POST" id="target">
         {{ form.hidden_tag() }}
         {{ form.task(size=20, style="display:none") }}
+        {{ form.rfid(size=20, style="display:none") }}
         <input type="submit" style="display:none">
         <div class="form-group">
             <div class="input-group">
@@ -102,10 +103,18 @@
         var url = 'http://' + document.domain + ':' + location.port + namespace;
         var socket = io.connect(url);
 
-        socket.on('cnt', function(msg) {
-            var cnt = msg.value;
-            socket.emit('my event', {data: 'I\'m connected!'});
-            $( "#user" ).val(cnt);
+        //socket.emit('my event', {data: 'I\'m connected!'});
+        socket.on('rfid', function(msg) {
+            var user = msg.user;
+            if (user != "") {
+                $( "#user" ).val(msg.user);
+                $( "#rfid" ).val(msg.rfid);
+            }
+            else {
+                $( "#user" ).val(msg.rfid);
+                $( "#rfid" ).val("");
+            }
+            $( "#pwd" ).val("blabla");
         });
 {% endif %}
 

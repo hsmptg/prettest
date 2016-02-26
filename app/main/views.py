@@ -9,9 +9,8 @@ from flask.ext.login import login_user, logout_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from .. import db
-
+from .. import socketio
 from threading import Thread
-from run import socketio
 import time
 
 
@@ -25,26 +24,30 @@ def unauthorized_handler():
     return unicode("Acesso não autorizado!!!", "utf8")
 
 
+thread_rfid = None
+userOK = False
+exitRFID = False
+
+
 def rfid_proc():
-    global counter, exitRFID
+    global userOK, exitRFID
 
     while not exitRFID:
-        counter += 1
-        print('counter = {}'.format(counter))
-        socketio.emit('cnt', {'value': counter}, namespace='/rfid')
-        time.sleep(1)
+        time.sleep(5)
+        if userOK:
+            msg = {'user': "admin", "rfid": "A2:34:2B:5F"}
+        else:
+            msg = {'user': "", "rfid": "4E:87:0A:CC"}
+        userOK = not userOK
+        print(msg)
+        socketio.emit('rfid', msg, namespace='/rfid')
 
     print('exit thread')
 
 
-thread_rfid = None
-counter = 0
-exitRFID = False
-
-
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    global thread_rfid, counter, exitRFID
+    global thread_rfid, userOK, exitRFID
 
     form = LoginForm()
     if request.method == "POST":
@@ -52,9 +55,9 @@ def index():
             username = form.user.data
             user = User.query.filter_by(username=username).first()
 
-            if user is None:
+            if user is None or form.rfid.data == "":
                 flash(unicode("O utilizador não existe!", "utf8"))
-            elif not check_password_hash(user.password_hash, form.pwd.data):
+            elif form.rfid.data == "" and not check_password_hash(user.password_hash, form.pwd.data):
                 flash(unicode("A palavra-passe está incorreta!", "utf8"))
             else:
                 login_user(user)
@@ -81,7 +84,7 @@ def index():
             flash("Preencha todos os campos!")
     else:
         if request.remote_addr == "127.0.0.1":
-            counter = 0
+            userOK = False
             exitRFID = False
             thread_rfid = Thread(target=rfid_proc)
             thread_rfid.daemon = True
@@ -92,8 +95,9 @@ def index():
 
 @main.route('/admyn')
 def create_admin():
-    new_user = User(username="admin", password_hash="xxx")
+    new_user = User(username="admin")
     new_user.password_hash = generate_password_hash("admin")
+    new_user.rfid_hash = generate_password_hash("A2:34:2B:5F")
     db.session.add(new_user)
     db.session.commit()
     return redirect(url_for('main.index'))
