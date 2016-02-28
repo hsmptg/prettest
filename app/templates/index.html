@@ -98,6 +98,7 @@
 {% endif %}
 <script type="text/javascript">
     $(document).ready(function() {
+        $("#rfid").val("xyz");
 {% if rpi %}
         namespace = '/rfid'; // change to an empty string to use the global namespace
         var url = 'http://' + document.domain + ':' + location.port + namespace;
@@ -124,7 +125,7 @@
         {% endfor %}
 
         $( "#production" ).click(function() {
-            socket.emit('my event', {data: 'I\'m connected!'});
+//            socket.emit('my event', {data: 'I\'m connected!'});
             $( "#task" ).val("production");
             $( "#target" ).submit();
         });
