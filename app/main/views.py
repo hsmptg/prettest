@@ -4,7 +4,7 @@ from app import login_manager
 from app.main import main
 from app.main.forms import LoginForm
 from app.models import User, Task
-from flask import render_template, redirect, url_for, session, request, flash
+from flask import render_template, redirect, url_for, session, request, flash, current_app
 from flask.ext.login import login_user, logout_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
@@ -31,15 +31,13 @@ thread_rfid = None
 exitRFID = False
 MIFAREReader = rc522.MFRC522()
 
-from run import app
 
-def rfid_proc():
+def rfid_proc(app):
     global MIFAREReader, exitRFID
 
     while not exitRFID:
-        time.sleep(10)
-#        uid = MIFAREReader.MRFC522_readUID()
-        uid = "EC:A4:F9:34"
+        time.sleep(1)
+        uid = MIFAREReader.MRFC522_readUID()
         if uid is not None:
             print("Card " + uid)
             with app.app_context():
@@ -95,7 +93,8 @@ def index():
         if request.remote_addr == "127.0.0.1":
             print("begin thread")
             exitRFID = False
-            thread_rfid = Thread(target=rfid_proc)
+            thread_rfid = Thread(target=rfid_proc,
+                                 args=(current_app._get_current_object(),))
             thread_rfid.daemon = True
             thread_rfid.start()
     return render_template('index.html', form=form,
