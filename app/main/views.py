@@ -19,7 +19,6 @@ if platform.uname()[4][0:3] == "arm":
     import rc522
 else:
     import rc522_alt as rc522
-from app.main.mcp3424 import MCP3424
 
 
 @login_manager.user_loader
@@ -85,7 +84,7 @@ def index():
                     exitRFID = True
 
                 if form.task.data == "production":
-                    return redirect(url_for('main.production'))
+                    return redirect(url_for('production.production'))
                 elif form.task.data == "maintenance":
                     return redirect(url_for('main.maintenance'))
                 elif form.task.data == "setup":
@@ -114,37 +113,6 @@ def create_admin():
     db.session.add(new_user)
     db.session.commit()
     return redirect(url_for('main.index'))
-
-
-thread_adc = None
-exitADC = False
-adc = MCP3424()
-
-
-def adc_proc():
-    global adc, exitADC
-
-    while not exitADC:
-        time.sleep(.1)
-        dat = adc.getData()
-        print(dat)
-        socketio.emit('newData', {'data': dat}, namespace='/adc')
-
-    print('exit adc thread')
-
-
-@main.route('/production')
-@login_required
-def production():
-    global thread_adc, exitADC
-
-    print("begin adc thread")
-    exitADC = False
-    thread_adc = Thread(target=adc_proc)
-    thread_adc.daemon = True
-    thread_adc.start()
-
-    return render_template('production.html')
 
 
 @main.route('/maintenance')
