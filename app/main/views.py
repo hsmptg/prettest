@@ -1,21 +1,26 @@
 # coding=utf-8
 
+import platform
+import time
+from datetime import datetime
+from threading import Thread
+
+from flask import render_template, redirect, url_for, session, request, flash
+from flask.ext.login import login_user, logout_user, login_required
+from werkzeug.security import check_password_hash, generate_password_hash
+
 from app import login_manager
 from app.main import main
 from app.main.forms import LoginForm
 from app.models import User, Task
-from flask import render_template, redirect, url_for, session, request, flash, current_app
-from flask.ext.login import login_user, logout_user, login_required
-from werkzeug.security import check_password_hash, generate_password_hash
-from datetime import datetime
 from .. import db, socketio
-from threading import Thread
-import time
-import platform
+
 if platform.uname()[4][0:3] == "arm":
     import rc522
 else:
     import rc522_alt as rc522
+from app.main.mcp3424 import MCP3424
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -93,10 +98,10 @@ def index():
         if request.remote_addr == "127.0.0.1":
             print("begin thread")
             exitRFID = False
-            thread_rfid = Thread(target=rfid_proc,
-                                 args=(current_app._get_current_object(),))
-            thread_rfid.daemon = True
-            thread_rfid.start()
+            # thread_rfid = Thread(target=rfid_proc,
+            #                      args=(current_app._get_current_object(),))
+            # thread_rfid.daemon = True
+            # thread_rfid.start()
     return render_template('index.html', form=form,
                            rpi=(request.remote_addr == "127.0.0.1"))
 
@@ -111,9 +116,34 @@ def create_admin():
     return redirect(url_for('main.index'))
 
 
+thread_adc = None
+exitADC = False
+adc = MCP3424()
+
+
+def adc_proc():
+    global adc, exitADC
+
+    while not exitADC:
+        time.sleep(.1)
+        dat = adc.getData()
+        print(dat)
+        socketio.emit('newData', {'data': dat}, namespace='/adc')
+
+    print('exit adc thread')
+
+
 @main.route('/production')
 @login_required
 def production():
+    global thread_adc, exitADC
+
+    print("begin adc thread")
+    exitADC = False
+    thread_adc = Thread(target=adc_proc)
+    thread_adc.daemon = True
+    thread_adc.start()
+
     return render_template('production.html')
 
 
